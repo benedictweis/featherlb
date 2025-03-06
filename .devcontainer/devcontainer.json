@@ -1,0 +1,27 @@
+{
+	"name": "featherlb",
+	"build": {
+		"context": "..",
+		"dockerfile": "../Dockerfile"
+	},
+	"runArgs": [
+		"-v",
+		"/usr/src:/usr/src:ro",
+		"-v",
+		"/lib/modules/:/lib/modules:ro",
+		"-v",
+		"/sys/kernel/debug/:/sys/kernel/debug:rw",
+		"--net=host",
+		"--pid=host",
+		"--privileged"
+	],
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"golang.go",
+				"ms-vscode.cpptools-extension-pack",
+				"ms-vscode.makefile-tools"
+			]
+		}
+	}
+}
