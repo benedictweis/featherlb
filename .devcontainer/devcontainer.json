@@ -2,7 +2,7 @@
 	"name": "featherlb",
 	"build": {
 		"context": "..",
-		"dockerfile": "../Dockerfile"
+		"dockerfile": "../Dockerfile" 
 	},
 	"runArgs": [
 		"-v",

@@ -1,20 +1,39 @@
 FROM ubuntu:22.04
 
-# Install dependencies
+SHELL ["/bin/bash", "-c"]
+
+RUN apt-get update && \
+    apt-get install -y gnupg curl && \
+    curl -fsSL https://apt.llvm.org/llvm-snapshot.gpg.key | gpg --dearmor -o /usr/share/keyrings/llvm-snapshot.gpg && \
+    echo "deb [signed-by=/usr/share/keyrings/llvm-snapshot.gpg] http://apt.llvm.org/jammy/ llvm-toolchain-jammy-20 main" > /etc/apt/sources.list.d/llvm.list
+
 RUN apt-get update && \
     apt-get install -y \
     linux-headers-generic \
     clang \
-    llvm \
+    llvm-20-dev \
+    libclang-20-dev \
+    libpolly-20-dev \
     libbpf-dev \
     ca-certificates \
-    curl \
     git \
     bash-completion \
     less \
     vim \
     tree \
-    make 
+    make \
+    libssl-dev \
+    pkg-config \
+    libzstd-dev
+
+RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
+
+RUN source $HOME/.cargo/env && rustup install stable && \
+    rustup toolchain install nightly --component rust-src
+
+RUN source $HOME/.cargo/env && cargo install --no-default-features bpf-linker
+
+RUN source $HOME/.cargo/env && cargo install cargo-generate
 
 RUN curl -LO https://go.dev/dl/go1.24.1.linux-arm64.tar.gz && \
     rm -rf /usr/local/go && tar -C /usr/local -xzf go1.24.1.linux-arm64.tar.gz
