@@ -38,11 +38,6 @@ RUN source $HOME/.cargo/env && cargo install --no-default-features bpf-linker
 
 RUN source $HOME/.cargo/env && cargo install cargo-generate
 
-RUN curl -LO https://go.dev/dl/go1.24.1.linux-arm64.tar.gz && \
-    rm -rf /usr/local/go && tar -C /usr/local -xzf go1.24.1.linux-arm64.tar.gz
-
-ENV PATH=$PATH:/usr/local/go/bin
-
 RUN echo 'PS1="\[\e[32m\]\u@\h:\w\$\[\e[m\] "' >> /root/.bashrc && \
     echo 'alias ls="ls --color=auto"' >> /root/.bashrc && \
     echo 'source /etc/bash_completion' >> /root/.bashrc

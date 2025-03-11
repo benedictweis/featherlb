@@ -1,5 +1,10 @@
+use std::net::Ipv4Addr;
+
 use anyhow::Context as _;
-use aya::programs::{Xdp, XdpFlags};
+use aya::{
+    maps::HashMap,
+    programs::{Xdp, XdpFlags},
+};
 use clap::Parser;
 #[rustfmt::skip]
 use log::{debug, warn};
@@ -45,6 +50,13 @@ async fn main() -> anyhow::Result<()> {
     program.load()?;
     program.attach(&iface, XdpFlags::SKB_MODE)
         .context("failed to attach the XDP program with default flags - try changing XdpFlags::default() to XdpFlags::SKB_MODE")?;
+
+    let mut rewrites: HashMap<_, u16, u32> = HashMap::try_from(ebpf.map_mut("REWRITES").unwrap())?;
+
+    let port: u16 = 80;
+    let new_ip: u32 = Ipv4Addr::new(10, 180, 132, 3).into();
+
+    rewrites.insert(port, new_ip, 0)?;
 
     let ctrl_c = signal::ctrl_c();
     println!("Waiting for Ctrl-C...");
