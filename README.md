@@ -7,29 +7,37 @@ Zur Bewertung:
 - Besonders Gutes verbessert die Note um 0,25 bis 0,5.
 - Wenn es nur mit extremem Aufwand funktioniert o.ä., verschlechtert das die Note um bis zu 0,5.
 
+## featherlb - An eBPF based Load Balancer
 
-## Leute
+### Leute
 
 - Benedict Weis
 
-## Beschreibung
+### Beschreibung
 
-## Estimation-Eintrag
+Ein simpler Load Balancer welche eingenende Pakete an mehrere Backends verteilt und ausgehende Pakete wieder zurück an den Client sendet.
 
-- 10h Implement Load Balancer using eBPF with aya-rs
+eBPF wird verwdndet um Pakete auf Layer 3 abzufangen und den restlichen Network Stack zu umgeben. Zumal ist der Wechsel zwischen Kernel und User-space teuer und wird auch umgangen.
 
-## Planungsnotizen
+### Estimation-Eintrag
+
+- 13h: Implementierung des Load Balancers
+
+### Planungsnotizen
+
+Wichtig: <https://ebpf.io/what-is-ebpf/>
 
 Anforderungen:
 
-- …
-- …
+- eBPF Anwendung welche auf Basis einer Map oder einem Array anfragen an Backends verteilt (C oder Rust)
+- Userspace Anwendung welche eine Konfigurationsdatei einliest, welche die Backeds beinhalten und die Map oder einem Array befüllt (Go oder Rust)
+- Optional
+  - Session pinning
+  - Metrics
+  - Verschiedene Algorithmen (siehe <https://www.cloudflare.com/en-gb/learning/performance/types-of-load-balancing-algorithms/>)
 
 Details:
 
-## Quellen
-
-- Link zu Repository oder Zip in Moodle.
 - <https://cloudchirp.medium.com/go-c-rust-and-more-picking-the-right-ebpf-application-stack-7abd1c1ba9f4>
 - <https://aya-rs.dev>
 - <https://ebpf-go.dev>
@@ -37,6 +45,26 @@ Details:
 - <https://medium.com/@oayirnil/lab-setting-up-a-rust-aya-ebpf-l4-load-balancer-dev-environment-184e643531f2>
 - <https://github.com/lizrice/lb-from-scratch>
 - <https://stackoverflow.com/questions/72120362/im-not-receiving-packets-using-xdp-tx>
+- <https://www.youtube.com/watch?v=L3_AOFSNKK8>
+
+Besondere Eigenschaft:
+
+- Unglaublich Effizient da große Teile des Network Stacks umgangen werden
+
+Deliverables:
+
+- Docker compose setup, das den Test laufen lässt
+  - Backend mehrfach deployed
+  - Client als Testprogramm, das Last erzeugt
+  - Load Balancer
+    - eBPF Anwendung die Pakete umschreibt
+    - Userspace Programm
+      - Optional: Config einlesen
+      - eBPF Anwendung "starten"
+
+## Quellen
+
+- Link zu Repository oder Zip in Moodle.
 
 ## Metriken
 

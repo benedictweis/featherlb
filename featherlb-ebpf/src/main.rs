@@ -17,7 +17,8 @@ use network_types::{
     udp::UdpHdr,
 };
 
-static load_balancer_ip: u32 = 0x0AB48403;
+const LOAD_BALENCER_ADDR: u32 = (10 << 24) | (180 << 16) | (132 << 8) | 2;
+const CLIENT_ADDR: u32 = (10 << 24) | (180 << 16) | (132 << 8) | 3;
 
 #[map]
 static REWRITES: HashMap<u16, u32> = HashMap::<u16, u32>::with_max_entries(1024, 0);
@@ -94,6 +95,10 @@ fn try_featherlb(ctx: XdpContext) -> Result<u32, ()> {
         destination_addr,
         destination_port
     );
+
+    if source_addr != CLIENT_ADDR {
+        return Ok(xdp_action::XDP_PASS);
+    }
 
     if let Some(new_ip) = rewrite_ip(destination_addr, destination_port) {
         info!(
