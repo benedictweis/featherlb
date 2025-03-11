@@ -24,7 +24,10 @@ RUN apt-get update && \
     make \
     libssl-dev \
     pkg-config \
-    libzstd-dev
+    libzstd-dev \
+    sudo \
+    net-tools \
+    iputils-ping
 
 RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
 
@@ -47,7 +50,5 @@ RUN echo 'PS1="\[\e[32m\]\u@\h:\w\$\[\e[m\] "' >> /root/.bashrc && \
 WORKDIR /featherlb
 
 COPY . /featherlb
-
-RUN go get ./...
 
 CMD ["bash"]

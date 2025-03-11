@@ -1,0 +1,18 @@
+[package]
+name = "featherlb-ebpf"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+featherlb-common = { path = "../featherlb-common" }
+
+aya-ebpf = { workspace = true }
+aya-log-ebpf = { workspace = true }
+network-types = "0.0.7"
+
+[build-dependencies]
+which = { workspace = true }
+
+[[bin]]
+name = "featherlb"
+path = "src/main.rs"

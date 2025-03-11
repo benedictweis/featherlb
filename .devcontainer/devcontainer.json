@@ -2,7 +2,7 @@
 	"name": "featherlb",
 	"build": {
 		"context": "..",
-		"dockerfile": "../Dockerfile" 
+		"dockerfile": "../Dockerfile"
 	},
 	"runArgs": [
 		"-v",
@@ -11,7 +11,7 @@
 		"/lib/modules/:/lib/modules:ro",
 		"-v",
 		"/sys/kernel/debug/:/sys/kernel/debug:rw",
-		"--net=host",
+		"--network=featherlb_net",
 		"--pid=host",
 		"--privileged"
 	],
