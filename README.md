@@ -91,3 +91,11 @@ RUST_LOG=info cargo run --config 'target."cfg(all())".runner="sudo -E"' -- --ifa
 ```
 
 If running in docker, create a new network and attach devcontainer and other container to it, then send traffic from the other container.
+
+```bash
+docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}'
+```
+
+```bash
+docker inspect -f '{{range .NetworkSettings.Networks}}{{.MacAddress}}{{end}}'
+```
