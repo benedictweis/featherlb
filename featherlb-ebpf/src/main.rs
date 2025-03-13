@@ -18,12 +18,12 @@ use network_types::{
     udp::UdpHdr,
 };
 
-const LOAD_BALENCER_IP_ADDR: u32 = (10 << 24) | (180 << 16) | (132 << 8) | 2;
-const LOAD_BALENCER_MAC_ADDR: [u8; 6] = [0x02, 0x42, 0x0a, 0xb4, 0x84, 0x02];
+const LOAD_BALENCER_IP_ADDR: u32 = (10 << 24) | (180 << 16) | (132 << 8) | 5;
+const LOAD_BALENCER_MAC_ADDR: [u8; 6] = [0x02, 0x42, 0x0a, 0xb4, 0x84, 0x05];
 const CLIENT_IP_ADDR: u32 = (10 << 24) | (180 << 16) | (132 << 8) | 3;
 const CLIENT_MAC_ADDR: [u8; 6] = [0x02, 0x42, 0x0a, 0xb4, 0x84, 0x03];
-const BACKEND_IP_ADDR: u32 = (10 << 24) | (180 << 16) | (132 << 8) | 4;
-const BACKEND_MAC_ADDR: [u8; 6] = [0x02, 0x42, 0x0a, 0xb4, 0x84, 0x04];
+const BACKEND_IP_ADDR: u32 = (10 << 24) | (180 << 16) | (132 << 8) | 2;
+const BACKEND_MAC_ADDR: [u8; 6] = [0x02, 0x42, 0x0a, 0xb4, 0x84, 0x02];
 
 #[map]
 static REWRITES: HashMap<u16, u32> = HashMap::<u16, u32>::with_max_entries(1024, 0);

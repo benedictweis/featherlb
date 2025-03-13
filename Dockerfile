@@ -27,7 +27,8 @@ RUN apt-get update && \
     libzstd-dev \
     sudo \
     net-tools \
-    iputils-ping
+    iputils-ping \
+    tcpdump
 
 RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
 
@@ -46,4 +47,9 @@ WORKDIR /featherlb
 
 COPY . /featherlb
 
+RUN  source $HOME/.cargo/env && cargo build --release
+
 CMD ["bash"]
+
+#docker run -v /usr/src:/usr/src:ro -v /lib/modules/:/lib/modules:ro -v /sys/kernel/debug/:/sys/kernel/debug:rw --network=featherlb_net --pid=host --privileged featherlb
+#docker build -t featherlb . && docker run --rm -v /usr/src:/usr/src:ro -v /lib/modules/:/lib/modules:ro -v /sys/kernel/debug/:/sys/kernel/debug:rw --network=featherlb_net --pid=host --privileged --name=featherlb featherlb

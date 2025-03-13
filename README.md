@@ -99,3 +99,7 @@ docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}'
 ```bash
 docker inspect -f '{{range .NetworkSettings.Networks}}{{.MacAddress}}{{end}}'
 ```
+
+```bash
+docker network create -d macvlan featherlb_net
+```
