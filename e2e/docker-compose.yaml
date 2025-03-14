@@ -17,6 +17,10 @@ services:
       - featherlb_test
   featherlb:
     build: ../.
+    environment:
+      - FEATHERLB_CONFIG_PATH=/etc/featherlb/featherlb.yaml
+    volumes:
+      - ./config:/etc/featherlb
     networks:
       - featherlb_test
   test-client:

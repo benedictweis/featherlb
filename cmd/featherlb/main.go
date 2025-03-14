@@ -2,48 +2,32 @@ package main
 
 import (
 	"errors"
+	"flag"
 	"io"
 	"log/slog"
 	"net"
-	"os"
 	"strconv"
 	"sync"
-
-	"gopkg.in/yaml.v3"
 )
 
-type Config struct {
-	Routes []Route `yaml:"routes"`
-}
-
-type Route struct {
-	Host     string    `yaml:"host"`
-	Port     int       `yaml:"port"`
-	Backends []Backend `yaml:"backends"`
-}
-
-type Backend struct {
-	Host string `yaml:"host"`
-	Port int    `yaml:"port"`
-}
-
 func main() {
-	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
-	slog.SetDefault(logger)
-	data, err := os.ReadFile("config.yaml")
+	configPath := flag.String("config", "", "Path to the config file")
+	debug := flag.Bool("debug", false, "Enable debug logging")
+	flag.Parse()
+	if *configPath == "" {
+		slog.Error("Config file path is required")
+		return
+	}
+
+	configureLogging(*debug)
+
+	config, err := readConfigFromFile(*configPath)
 	if err != nil {
 		slog.Error("Failed to read config file", "error", err)
 		return
 	}
 
-	config := &Config{}
-	err = yaml.Unmarshal(data, config)
-	if err != nil {
-		slog.Error("Failed to unmarshal config file", "error", err)
-		return
-	}
-
-	slog.Info("Config loaded", "config", config)
+	slog.Debug("Config loaded", "location", *configPath, "config", config)
 
 	wg := sync.WaitGroup{}
 
