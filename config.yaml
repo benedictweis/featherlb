@@ -1,8 +1,8 @@
 routes:
-  - host: localhost
+  - host: 0.0.0.0
     port: 8080
     backends:
-      - host: localhost
+      - host: backend1
         port: 8081
-      - host: localhost
+      - host: backend2
         port: 8082

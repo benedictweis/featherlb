@@ -335,5 +335,8 @@ $RECYCLE.BIN/
 
 ### Custom ###
 
+#Include go.mod file
+!go.mod
+
 # Ignore test folders as the main Dockerfile is only concerned with the featherlb package
 e2e
