@@ -1,0 +1,26 @@
+services:
+  backend1:
+    build: ./backend/.
+    environment:
+      - FLASK_PORT=8081
+      - FLASK_MESSAGE=Hello from backend-1
+    networks:
+      - featherlb_test
+  backend2:
+    build: ./backend/.
+    environment:
+      - FLASK_PORT=8082
+      - FLASK_MESSAGE=Hello from backend-2
+    networks:
+      - featherlb_test
+  featherlb:
+    build: ../.
+    networks:
+      - featherlb_test
+  test-client:
+    build: ./test-client/.
+    networks:
+      - featherlb_test
+
+networks:
+  featherlb_test:
