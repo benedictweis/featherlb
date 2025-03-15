@@ -1,14 +1,20 @@
 package main
 
 import (
-	"errors"
+	"featherlb/cmd/featherlb/strategies"
+	"featherlb/cmd/featherlb/types"
 	"flag"
+	"fmt"
 	"io"
 	"log/slog"
 	"net"
 	"strconv"
 	"sync"
+	"time"
 )
+
+var bufPool = sync.Pool{New: func() interface{} { return make([]byte, 32*1024) }}
+var connectionPool = make(map[string]*sync.Pool)
 
 func main() {
 	configPath := flag.String("config", "", "Path to the config file")
@@ -21,13 +27,30 @@ func main() {
 
 	configureLogging(*debug)
 
-	config, err := readConfigFromFile(*configPath)
+	config, err := types.ReadConfigFromFile(*configPath)
 	if err != nil {
 		slog.Error("Failed to read config file", "error", err)
 		return
 	}
 
 	slog.Debug("Config loaded", "location", *configPath, "config", config)
+
+	// Initialize connection pools for each backend
+	for _, route := range config.Routes {
+		for _, backend := range route.Backends {
+			key := net.JoinHostPort(backend.Host, strconv.Itoa(backend.Port))
+			connectionPool[key] = &sync.Pool{
+				New: func() interface{} {
+					connection, err := net.DialTimeout("tcp", key, 3*time.Second)
+					if err != nil {
+						slog.Warn("Error creating backend connection", "error", err)
+						return nil
+					}
+					return connection
+				},
+			}
+		}
+	}
 
 	wg := sync.WaitGroup{}
 
@@ -39,7 +62,7 @@ func main() {
 	wg.Wait()
 }
 
-func listenOnRoute(route Route) {
+func listenOnRoute(route types.Route) {
 	address := net.JoinHostPort(route.Host, strconv.Itoa(route.Port))
 	listener, err := net.Listen("tcp", address)
 	if err != nil {
@@ -50,61 +73,71 @@ func listenOnRoute(route Route) {
 
 	slog.Info("featherlb listening", "local_addr", listener.Addr())
 
-	index := uint(0)
+	strategy := strategies.NewRoundRobinStrategy()
+	for _, backend := range route.Backends {
+		strategy.AddBackend(backend)
+	}
+
+	slog.Info("initialized strategy", "strategy", "round-robin")
 
 	for {
-		clientConn, err := listener.Accept()
+		clientConnection, err := listener.Accept()
 		if err != nil {
 			slog.Error("Failed to accept connection", "error", err)
 			continue
 		}
 
-		slog.Info("New connection", "remote_addr", clientConn.RemoteAddr())
+		slog.Info("New connection", "remote_addr", clientConnection.RemoteAddr())
 
-		backend := getNextBackend(index, route.Backends)
-		index++
-		backendConn, err := net.Dial("tcp", net.JoinHostPort(backend.Host, strconv.Itoa(backend.Port)))
-		if err != nil {
-			slog.Error("Failed to connect to backend", "error", err)
-			clientConn.Close()
-			continue
-		}
-
-		go handleConnection(clientConn, backendConn)
+		go handleConnection(clientConnection, strategy)
 	}
 }
 
-func getNextBackend(index uint, backends []Backend) Backend {
-	return backends[index%uint(len(backends))]
-}
+func handleConnection(clientConnection net.Conn, strategy strategies.Strategy) {
+	defer clientConnection.Close()
 
-func handleConnection(clientConn, backendConn net.Conn) {
+	backend, err := strategy.Next()
+	if err != nil {
+		slog.Error("Failed to get backend", "error", err)
+		return
+	}
+	backendConnection, err := net.Dial("tcp", net.JoinHostPort(backend.Host, strconv.Itoa(backend.Port)))
+	if err != nil {
+		slog.Error("Failed to connect to backend", "error", err)
+		return
+
+	}
+
+	backendHostPort := net.JoinHostPort(backend.Host, strconv.Itoa(backend.Port))
+
+	serverConn := connectionPool[backendHostPort].Get()
+
+	if serverConn == nil {
+		var err error
+		serverConn, err = net.DialTimeout("tcp", backendHostPort, 3*time.Second)
+		if err != nil {
+			fmt.Println("Failed to connect to backend:", err)
+			return
+		}
+	}
+
+	serverConnection := serverConn.(net.Conn)
+
+	defer connectionPool[backendHostPort].Put(serverConnection)
+
 	var wg sync.WaitGroup
+
 	wg.Add(2)
 
-	go func() {
-		defer wg.Done()
-		slog.Info("Starting to copy from client to backend")
-		copyFromTo(clientConn, backendConn)
-	}()
-
-	go func() {
-		defer wg.Done()
-		slog.Info("Starting to copy from backend to client")
-		copyFromTo(backendConn, clientConn)
-	}()
+	go pipeData(clientConnection, backendConnection, &wg)
+	go pipeData(backendConnection, clientConnection, &wg)
 
 	wg.Wait()
 }
 
-func copyFromTo(dst net.Conn, src net.Conn) {
-	defer dst.Close()
-	defer src.Close()
-	if _, err := io.Copy(dst, src); err != nil {
-		if errors.Is(err, net.ErrClosed) {
-			slog.Info("Graceful shutdown: connection closed")
-		} else {
-			slog.Error("Error copying data", "error", err)
-		}
-	}
+func pipeData(src, dst net.Conn, wg *sync.WaitGroup) {
+	defer wg.Done()
+	buf := bufPool.Get().([]byte)
+	defer bufPool.Put(buf)
+	io.CopyBuffer(dst, src, buf)
 }

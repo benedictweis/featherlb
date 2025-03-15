@@ -1,4 +1,4 @@
-package main
+package types
 
 import (
 	"fmt"
@@ -22,7 +22,7 @@ type Backend struct {
 	Port int    `yaml:"port"`
 }
 
-func readConfigFromFile(filename string) (*Config, error) {
+func ReadConfigFromFile(filename string) (*Config, error) {
 	data, err := os.ReadFile(filename)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read config file: %w", err)
