@@ -1,14 +1,4 @@
-FROM python:3.9-slim
+FROM nginx:1.27.4-alpine
 
-WORKDIR /app
-
-COPY requirements.txt .
-
-RUN pip install --no-cache-dir -r requirements.txt
-
-COPY backend.py .
-
-ENV FLASK_MESSAGE="Hello, World!"
-ENV FLASK_PORT=8080
-
-CMD ["python3", "backend.py"]
+RUN rm -rf /var/log/nginx/access.log
+RUN touch /var/log/nginx/access.log

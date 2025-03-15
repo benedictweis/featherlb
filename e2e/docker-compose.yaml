@@ -2,17 +2,13 @@ services:
   backend1:
     build: ./backend/.
     environment:
-      - FLASK_HOST=0.0.0.0
-      - FLASK_PORT=8081
-      - FLASK_MESSAGE=Hello from backend-1
+      - NGINX_PORT=8081
     networks:
       - featherlb_test
   backend2:
     build: ./backend/.
     environment:
-      - FLASK_HOST=0.0.0.0
-      - FLASK_PORT=8082
-      - FLASK_MESSAGE=Hello from backend-2
+      - NGINX_PORT=8082
     networks:
       - featherlb_test
   featherlb:

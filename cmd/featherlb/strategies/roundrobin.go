@@ -3,15 +3,14 @@ package strategies
 import (
 	"errors"
 	"featherlb/cmd/featherlb/types"
-	"sync"
+	"sync/atomic"
 )
 
 var ErrNoBackends = errors.New("no backends available")
 
 type RoundRobinStrategy struct {
 	backends []types.Backend
-	index    int
-	mu       sync.Mutex // Mutex to ensure thread safety
+	index    uint64 // Use an atomic counter
 }
 
 func NewRoundRobinStrategy() *RoundRobinStrategy {
@@ -22,25 +21,15 @@ func NewRoundRobinStrategy() *RoundRobinStrategy {
 }
 
 func (r *RoundRobinStrategy) AddBackend(backend types.Backend) {
-	r.mu.Lock()
-	defer r.mu.Unlock()
 	r.backends = append(r.backends, backend)
 }
 
 func (r *RoundRobinStrategy) Next() (types.Backend, error) {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-
 	if len(r.backends) == 0 {
 		return types.Backend{}, ErrNoBackends
 	}
 
-	if r.index >= len(r.backends) {
-		r.index = 0
-	}
-
-	backend := r.backends[r.index]
-	r.index = (r.index + 1) % len(r.backends)
-
-	return backend, nil
+	// Atomically increment the index and wrap around using modulo
+	idx := atomic.AddUint64(&r.index, 1)
+	return r.backends[(idx-1)%uint64(len(r.backends))], nil
 }
