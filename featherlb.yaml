@@ -1,7 +1,8 @@
 routes:
   - host: 0.0.0.0
     port: 8080
-    backends:
+    strategy: roundrobin
+    endpoints:
       - host: backend1
         port: 8081
       - host: backend2
