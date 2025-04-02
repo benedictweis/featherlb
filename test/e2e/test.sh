@@ -2,16 +2,28 @@
 
 cd "$(dirname "$0")" || exit
 
-docker compose up -d --build
+rm -rf ./config/featherlb.yaml
 
-echo "Waiting for the test-client to to exit"
-docker compose wait test-client
+for config in roundrobin random iphash; do
+    echo "Testing $config..."
 
-docker compose logs test-client
+    cp "./config/$config.yaml" ./config/featherlb.yaml
 
-for backend in backend1 backend2; do
-    echo "$backend requests:"
-    docker compose exec "$backend" sh -c "cat /var/log/nginx/access.log | wc -l"
+    docker compose up -d --build
+
+    echo "Waiting for the test-client to to exit"
+    docker compose wait test-client
+
+    echo "Results for test $config:"
+
+    docker compose logs test-client
+
+    for backend in backend1 backend2; do
+        echo "$backend requests:"
+        docker compose exec "$backend" sh -c "cat /var/log/nginx/access.log | wc -l"
+    done
+
+    docker compose down
 done
 
-docker compose down
+rm -rf ./config/featherlb.yaml

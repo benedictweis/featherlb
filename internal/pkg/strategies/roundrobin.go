@@ -1,12 +1,10 @@
 package strategies
 
 import (
-	"errors"
 	"featherlb/internal/pkg/types"
+	"net"
 	"sync/atomic"
 )
-
-var ErrNoEndpoints = errors.New("no endpoints available")
 
 type RoundRobinStrategy struct {
 	endpoints []types.Endpoint
@@ -24,7 +22,7 @@ func (r *RoundRobinStrategy) AddEndpoint(endpoint types.Endpoint) {
 	r.endpoints = append(r.endpoints, endpoint)
 }
 
-func (r *RoundRobinStrategy) Next() (types.Endpoint, error) {
+func (r *RoundRobinStrategy) Next(_ net.TCPAddr) (types.Endpoint, error) {
 	if len(r.endpoints) == 0 {
 		return types.Endpoint{}, ErrNoEndpoints
 	}

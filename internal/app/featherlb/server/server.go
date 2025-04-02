@@ -66,8 +66,7 @@ func (s *FeatherLBServer) listenOnRoute(route types.Route) {
 
 	slog.Info("featherlb listening", "local_addr", listener.Addr())
 
-	// TODO proper strategy selection based on route.Strategy
-	strategy := strategies.NewRoundRobinStrategy()
+	strategy := strategies.MatchStrategy(route.Strategy)
 	for _, endpoint := range route.Endpoints {
 		strategy.AddEndpoint(endpoint)
 	}
@@ -91,7 +90,7 @@ func (s *FeatherLBServer) listenOnRoute(route types.Route) {
 func (s *FeatherLBServer) handleConnection(clientConnection net.Conn, strategy strategies.Strategy) {
 	defer clientConnection.Close()
 
-	endpoint, err := strategy.Next()
+	endpoint, err := strategy.Next(*clientConnection.RemoteAddr().(*net.TCPAddr))
 	if err != nil {
 		slog.Error("Failed to get endpoint", "error", err)
 		return

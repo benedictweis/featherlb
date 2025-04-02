@@ -1,9 +1,9 @@
 routes:
   - host: 0.0.0.0
     port: 8080
-    strategy: random
+    strategy: iphash
     endpoints:
       - host: backend1
-        port: 8081
+        port: 80
       - host: backend2
-        port: 8082
+        port: 80
