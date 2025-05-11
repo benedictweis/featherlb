@@ -23,17 +23,6 @@ Ein simpler Load Balancer welche eingenende Pakete an mehrere Backends verteilt 
 
 ### Planungsnotizen
 
-Details:
-
-- <https://cloudchirp.medium.com/go-c-rust-and-more-picking-the-right-ebpf-application-stack-7abd1c1ba9f4>
-- <https://aya-rs.dev>
-- <https://ebpf-go.dev>
-- <https://github.com/eunomia-bpf/bpf-developer-tutorial/tree/main/src/42-xdp-loadbalancer>
-- <https://medium.com/@oayirnil/lab-setting-up-a-rust-aya-ebpf-l4-load-balancer-dev-environment-184e643531f2>
-- <https://github.com/lizrice/lb-from-scratch>
-- <https://stackoverflow.com/questions/72120362/im-not-receiving-packets-using-xdp-tx>
-- <https://www.youtube.com/watch?v=L3_AOFSNKK8>
-
 Besondere Eigenschaft:
 
 - Einfaches Deployment/einfache Ausführbarkeit (siehe unten)
