@@ -82,4 +82,6 @@ Requirements:
 make e2e
 ```
 
-Die Ausgabe in der Konsole dient nur zu Debugging-Zwecken. Die Resultate des e2e Tests werden in eine Datei unter `./test/e2e/runs/<datetime>.log`
+Die Ausgabe in der Konsole dient nur zu Debugging-Zwecken. Die Resultate des e2e Tests werden in eine Datei unter `./test/e2e/runs/<datetime>.log` gespeichert. Dort werden die gemessenen Werte niedergeschrieben. Bei den Angaben zu backend1 und backend2 handelt es sich um die gemessene Anzahl an requests im access log des jeweiligen nginx servers. Das ganze Setup ist hochgradig konfigurierbar. In aktueller form wird mittels des [wrk](https://github.com/wg/wrk)-tools eine HTTP Last gegen den Load Balancer gesendet. Es werden dabei für 10s mit 12 Threads und 400 Connections so viele Anfragen gesendet wie der Load Balancer verarbeiten kann.
+
+Abweichungen in den Tests sind zu erwarten und kommen stark auf die Platform an auf der der Test ausgeführt wird.
