@@ -77,3 +77,27 @@ Abweichungen in den Tests sind zu erwarten und kommen stark auf die Platform an 
 ## eBPF
 
 Ursprünglich war geplant, einen Load Balancer mit eBPF zu bauen. Einige Tests in diese Richtung sind unter <https://github.com/benedictweis/featherlb/tree/ebpf-playground> dokumentiert.
+
+## Local Development
+
+Starten des Load Balancers:
+
+```bash
+go run ./cmd/featherlb --debug --config featherlb.yaml
+```
+
+Starten zweier Web Server:
+
+```bash
+python3 -m http.server 8081
+```
+
+```bash
+python3 -m http.server 8081
+```
+
+Anfragen senden:
+
+```bash
+curl localhost:8080
+```

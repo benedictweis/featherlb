@@ -3,7 +3,7 @@ routes:
     port: 8080
     strategy: random
     endpoints:
-      - host: backend1
+      - host: localhost
         port: 8081
-      - host: backend2
+      - host: localhost
         port: 8082
